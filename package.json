@@ -1,0 +1,23 @@
+{
+  "name": "gsapi",
+  "version": "1.0.0",
+  "description": "APIs for Geophysical Services",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "Bhanu Pratap Singh",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bpmnnit/gsapi.git"
+  },
+  "keywords": [
+    "Geophysical",
+    "Services"
+  ],
+  "bugs": {
+    "url": "https://github.com/bpmnnit/gsapi/issues"
+  },
+  "homepage": "https://github.com/bpmnnit/gsapi#readme"
+}
