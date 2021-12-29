@@ -77,11 +77,13 @@ app.use(function(req, res, next) {
 app.use('/', router);
 
 router.route('/regions').get(function(req, res) {
+  console.log(regions.countDocuments({}));
+  console.log('---------------------------------------------');
   regions.find({}, function(err, result) {
     if (err) {
       res.send(err);
     } else {
-      res.send(result);
+      res.send({...result, totalDocs });
     }
   });
 });
