@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const PORT = 8080;
 const mongoose = require('mongoose');
-const regions = require('./regions');
+// const regions = require('./regions');
 const router = express.Router();
 
 const db = require('./models');
@@ -55,6 +55,8 @@ function initial() {
   })
 }
 
+
+
 db.mongoose.connect(`mongodb://${dbConfig.USER}:${dbConfig.PASSWORD}@${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}?authSource=admin&readPreference=primary&retryWrites=true&w=majority&directConnection=true&ssl=false`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -76,17 +78,52 @@ app.use(function(req, res, next) {
 
 app.use('/', router);
 
-router.route('/regions').get(function(req, res) {
-  console.log(regions.countDocuments({}));
-  console.log('---------------------------------------------');
-  regions.find({}, function(err, result) {
-    if (err) {
-      res.send(err);
-    } else {
-      res.send({...result, totalDocs });
+const region = db.region;
+
+router.get('/regions', async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    if(!page) {
+      page = 1;
     }
-  });
+    if(!size) {
+      size = 2;
+    }
+
+    const limit = parseInt(size);
+    const skip = (page - 1) * size;
+
+    const regions = await region.find().limit(limit).skip(skip);
+    const totalRegions = await region.find().count();
+    res.send({
+      page, size, regions, totalRegions
+    });
+
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
 });
+
+// router.route('/regions').get(function(req, res) {
+//   console.log(region.methods);
+//   // region.paginate(req.body.pageNo, function(err, response) {
+//   //   if(err) {
+//   //     return res.status(500).json({
+//   //       message: 'Error in application',
+//   //       error: err
+//   //     });
+//   //   }
+//   //   return res.status(200).json(response);
+//   // });
+//   region.find({}, function(err, result) {
+//     if (err) {
+//       res.send(err);
+//     } else {
+//       console.log(result);
+//       res.send(result);
+//     }
+//   });
+// });
 
 router.route('/regions/new').post(function(req, res) {
   const doc = {
