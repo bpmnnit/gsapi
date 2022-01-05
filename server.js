@@ -55,8 +55,6 @@ function initial() {
   })
 }
 
-
-
 db.mongoose.connect(`mongodb://${dbConfig.USER}:${dbConfig.PASSWORD}@${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}?authSource=admin&readPreference=primary&retryWrites=true&w=majority&directConnection=true&ssl=false`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -79,6 +77,30 @@ app.use(function(req, res, next) {
 app.use('/', router);
 
 const region = db.region;
+
+router.patch('/regions/edit/:region_id', async (req, res, next) => {
+  try {
+    console.log(req.body);
+    let id = mongoose.Types.ObjectId(req.params.region_id);
+    const reg = await region.findById(id);
+    console.log(req.query);
+    res.send('Work in progress!');
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.get('/regions/:region_id', async (req, res, next) => {
+  try {
+    let id = mongoose.Types.ObjectId(req.params.region_id);
+    const reg = await region.findById(id);
+    res.send({
+      region: reg
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
 
 router.get('/regions', async (req, res, next) => {
   try {
@@ -103,27 +125,6 @@ router.get('/regions', async (req, res, next) => {
     res.sendStatus(500).send(error.message);
   }
 });
-
-// router.route('/regions').get(function(req, res) {
-//   console.log(region.methods);
-//   // region.paginate(req.body.pageNo, function(err, response) {
-//   //   if(err) {
-//   //     return res.status(500).json({
-//   //       message: 'Error in application',
-//   //       error: err
-//   //     });
-//   //   }
-//   //   return res.status(200).json(response);
-//   // });
-//   region.find({}, function(err, result) {
-//     if (err) {
-//       res.send(err);
-//     } else {
-//       console.log(result);
-//       res.send(result);
-//     }
-//   });
-// });
 
 router.route('/regions/new').post(function(req, res) {
   const doc = {
