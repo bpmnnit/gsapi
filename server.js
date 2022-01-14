@@ -78,6 +78,21 @@ app.use('/', router);
 
 const region = db.region;
 
+router.delete('/regions/delete/:region_id', (req, res, next) => {
+  const filter = {
+    _id: req.params.region_id
+  };
+
+  region.findOneAndDelete(filter, function(err, result) {
+    if (err) {
+      req.sendStatus(500).send(err.message);
+    } else {
+      console.log(`Deleted the document with ID: ${filter._id}`);
+      res.send(result);
+    }
+  });
+});
+
 router.patch('/regions/edit/:region_id', async (req, res, next) => {
   try {
     const update = req.body;
