@@ -80,11 +80,16 @@ const region = db.region;
 
 router.patch('/regions/edit/:region_id', async (req, res, next) => {
   try {
-    console.log(req.body);
-    let id = mongoose.Types.ObjectId(req.params.region_id);
-    const reg = await region.findById(id);
-    console.log(req.query);
-    res.send('Work in progress!');
+    const update = req.body;
+    const filter = {
+      _id: req.params.region_id
+    };
+    const result = await region.findOneAndUpdate(filter, update, {
+      new: true
+    });
+    res.send({
+      result: result
+    });
   } catch (error) {
     res.sendStatus(500).send(error.message);
   }
@@ -133,7 +138,7 @@ router.route('/regions/new').post(function(req, res) {
     userId: req.body.userId,
     timeStamp: req.body.timeStamp
   };
-  regions.create(doc, function(err, result) {
+  region.create(doc, function(err, result) {
     if (err) {
       res.send(err);
     } else {
