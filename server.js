@@ -77,6 +77,7 @@ app.use(function(req, res, next) {
 app.use('/', router);
 
 const region = db.region;
+const people = db.people;
 
 router.delete('/regions/delete/:region_id', (req, res, next) => {
   const filter = {
@@ -136,9 +137,9 @@ router.get('/regions', async (req, res, next) => {
     const skip = (page - 1) * size;
 
     const regions = await region.find().limit(limit).skip(skip);
-    const totalRegions = await region.find().count();
+    const total = await region.find().count();
     res.send({
-      page, size, regions, totalRegions
+      page, size, regions, total
     });
 
   } catch (error) {
@@ -161,6 +162,30 @@ router.route('/regions/new').post(function(req, res) {
       res.send(result);
     }
   });
+});
+
+router.get('/peoples', async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    if(!page) {
+      page = 1;
+    }
+    if(!size) {
+      size = 30;
+    }
+
+    const limit = parseInt(size);
+    const skip = (page - 1) * size;
+
+    const peoples = await people.find().limit(limit).skip(skip);
+    const total = await people.find().count();
+    res.send({
+      page, size, peoples, total
+    });
+
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
 });
 
 router.route('/api/auth/signin').post(authController.signin);

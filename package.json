@@ -21,9 +21,10 @@
   },
   "homepage": "https://github.com/bpmnnit/gsapi#readme",
   "dependencies": {
-    "json-server": "^0.16.3",
-    "mongoose": "^6.0.6",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^8.5.1"
+    "json-server": "^0.16.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.0.6",
+    "mongoose-long": "^0.5.1"
   }
 }

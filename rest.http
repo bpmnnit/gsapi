@@ -2,10 +2,13 @@
 GET http://localhost:8080/regions
 
 ###
-GET http://localhost:8080/regions?page=2&size=2
+GET http://localhost:8080/regions?page=1&size=30
 
 ###
 GET http://localhost:8080/regions/61c45c68906f02a66b345413
 
 ###
 DELETE http://localhost:8080/regions/delete/61e1d0f5f303625bf6928e52
+
+###
+GET http://localhost:8080/peoples
