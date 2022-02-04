@@ -12,3 +12,6 @@ DELETE http://localhost:8080/regions/delete/61e1d0f5f303625bf6928e52
 
 ###
 GET http://localhost:8080/peoples
+
+###
+GET http://localhost:8080/peoples/61ef991168e1c352d15addfd

@@ -188,6 +188,42 @@ router.get('/peoples', async (req, res, next) => {
   }
 });
 
+router.route('/peoples/new').post(function(req, res) {
+  const doc = {
+    cpf: req.body.cpf,
+    name: req.body.name,
+    email: req.body.email,
+    designation: req.body.designation,
+    discipline: req.body.discipline,
+    charge: req.body.charge,
+    level: req.body.level,
+    mobile: req.body.mobile,
+    crc: req.body.crc,
+    userId: req.body.userId,
+    timeStamp: req.body.timeStamp
+  };
+  people.create(doc, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      console.log(`Inserted a new people document with id ${result._id}`);
+      res.send(result);
+    }
+  });
+});
+
+router.get('/peoples/:people_id', async (req, res, next) => {
+  try {
+    let id = mongoose.Types.ObjectId(req.params.people_id);
+    const reg = await people.findById(id);
+    res.send({
+      people: reg
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
 router.route('/api/auth/signin').post(authController.signin);
 router.route('/api/auth/signup').post(
   [
