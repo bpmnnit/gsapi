@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 require('mongoose-long')(mongoose); //For Long Type
 const Long = mongoose.Schema.Types.Long;
+const { Schema } = mongoose;
 
-const peopleSchema = new mongoose.Schema(
+const peopleSchema = new Schema(
   {
     cpf: Number,
     name: String,
@@ -13,7 +14,7 @@ const peopleSchema = new mongoose.Schema(
     level: String,
     mobile: Long,
     crc: String,
-    userId: String,
+    userId: { type: Schema.Types.ObjectId, ref: 'User' }
   }, {
     timestamps: true,
   }, {

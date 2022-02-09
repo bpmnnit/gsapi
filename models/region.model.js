@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-
-const regionSchema = new mongoose.Schema(
+const { Schema } = mongoose;
+const regionSchema = new Schema(
   {
   title: String,
   description: String,
-  userId: String,
+  userId: { type: Schema.Types.ObjectId, ref: 'User' }
   }, {
     timestamps: true,
   }, {

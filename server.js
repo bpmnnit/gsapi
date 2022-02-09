@@ -78,6 +78,8 @@ app.use('/', router);
 
 const region = db.region;
 const people = db.people;
+const basin = db.basin;
+const fp = db.fp;
 
 router.delete('/regions/delete/:region_id', (req, res, next) => {
   const filter = {
@@ -130,14 +132,14 @@ router.get('/regions', async (req, res, next) => {
       page = 1;
     }
     if(!size) {
-      size = 2;
+      size = 30;
     }
 
-    const limit = parseInt(size);
+    const lmt = parseInt(size);
     const skip = (page - 1) * size;
 
-    const regions = await region.find().limit(limit).skip(skip);
-    const total = await region.find().count();
+    const regions = await region.find({}).limit(lmt).skip(skip);
+    const total = await region.find({}).count();
     res.send({
       page, size, regions, total
     });
@@ -145,14 +147,24 @@ router.get('/regions', async (req, res, next) => {
   } catch (error) {
     res.sendStatus(500).send(error.message);
   }
+  // region.find({}).exec((err, regions) => {
+  //   if(err) {
+  //     console.log(err);
+  //     res.sendStatus(500).send(err.message);
+  //   } else {
+  //     console.log(regions);
+  //     res.send({
+  //       regions
+  //     });
+  //   }
+  // });
 });
 
 router.route('/regions/new').post(function(req, res) {
   const doc = {
     title: req.body.title,
     description: req.body.description,
-    userId: req.body.userId,
-    timeStamp: req.body.timeStamp
+    userId: req.body.userId
   };
   region.create(doc, function(err, result) {
     if (err) {
@@ -174,10 +186,10 @@ router.get('/peoples', async (req, res, next) => {
       size = 30;
     }
 
-    const limit = parseInt(size);
+    const lmt = parseInt(size);
     const skip = (page - 1) * size;
 
-    const peoples = await people.find().limit(limit).skip(skip);
+    const peoples = await people.find().limit(lmt).skip(skip);
     const total = await people.find().count();
     res.send({
       page, size, peoples, total
@@ -223,6 +235,153 @@ router.get('/peoples/:people_id', async (req, res, next) => {
     res.sendStatus(500).send(error.message);
   }
 });
+
+router.patch('/peoples/edit/:people_id', async (req, res, next) => {
+  try {
+    const update = req.body;
+    const filter = {
+      _id: req.params.people_id
+    };
+    const result = await people.findOneAndUpdate(filter, update, {
+      new: true
+    });
+    res.send({
+      result: result
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.delete('/peoples/delete/:people_id', (req, res, next) => {
+  const filter = {
+    _id: req.params.people_id
+  };
+
+  people.findOneAndDelete(filter, function(err, result) {
+    if (err) {
+      req.sendStatus(500).send(err.message);
+    } else {
+      console.log(`Deleted the document with ID: ${filter._id}`);
+      res.send(result);
+    }
+  });
+});
+
+router.get('/basins', async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    if(!page) {
+      page = 1;
+    }
+    if(!size) {
+      size = 30;
+    }
+
+    const lmt = parseInt(size);
+    const skip = (page - 1) * size;
+
+    const basins = await basin.find().limit(lmt).skip(skip);
+    const total = await basin.find().count();
+    res.send({
+      page, size, basins, total
+    });
+
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.route('/basins/new').post(function(req, res) {
+  const doc = {
+    name: req.body.name,
+    category: req.body.category,
+    userId: req.body.userId,
+  };
+  basin.create(doc, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      console.log(`Inserted a new basin document with id ${result._id}`);
+      res.send(result);
+    }
+  });
+});
+
+router.get('/basins/:basin_id', async (req, res, next) => {
+  try {
+    let id = mongoose.Types.ObjectId(req.params.basin_id);
+    const reg = await basin.findById(id);
+    res.send({
+      basin: reg
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.patch('/basins/edit/:basin_id', async (req, res, next) => {
+  try {
+    const update = req.body;
+    const filter = {
+      _id: req.params.basin_id
+    };
+    const result = await basin.findOneAndUpdate(filter, update, {
+      new: true
+    });
+    res.send({
+      result: result
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.delete('/basins/delete/:basin_id', (req, res, next) => {
+  const filter = {
+    _id: req.params.basin_id
+  };
+
+  basin.findOneAndDelete(filter, function(err, result) {
+    if (err) {
+      req.sendStatus(500).send(err.message);
+    } else {
+      console.log(`Deleted the document with ID: ${filter._id}`);
+      res.send(result);
+    }
+  });
+});
+
+router.get('/fps', async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    if(!page) {
+      page = 1;
+    }
+    if(!size) {
+      size = 30;
+    }
+
+    const lmt = parseInt(size);
+    const skip = (page - 1) * size;
+
+    const fps = await fp.find({}).populate({
+      path: 'region',
+      select: 'title'
+    }).populate({
+      path: 'chief',
+      select: 'name'
+    }).limit(lmt).skip(skip);
+    const total = await fp.find({}).count();
+    res.send({
+      page, size, fps, total
+    });
+
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
 
 router.route('/api/auth/signin').post(authController.signin);
 router.route('/api/auth/signup').post(

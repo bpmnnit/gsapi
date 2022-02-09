@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
 const User = mongoose.model(
   'User',
-  new mongoose.Schema({
+  new Schema({
     cpf: Number,
     username: String,
     designation: String,
@@ -10,7 +11,7 @@ const User = mongoose.model(
     password: String,
     roles: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Role'
       }
     ]

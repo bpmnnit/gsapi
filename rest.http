@@ -15,3 +15,9 @@ GET http://localhost:8080/peoples
 
 ###
 GET http://localhost:8080/peoples/61ef991168e1c352d15addfd
+
+###
+GET http://localhost:8080/basins
+
+###
+GET http://localhost:8080/fps
