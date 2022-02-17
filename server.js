@@ -14,7 +14,10 @@ const authController = require('./controllers/auth.controller');
 const userController = require('./controllers/user.controller');
 const { verifySignUp, authJwt } = require('./middlewares');
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
 
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -147,17 +150,6 @@ router.get('/regions', async (req, res, next) => {
   } catch (error) {
     res.sendStatus(500).send(error.message);
   }
-  // region.find({}).exec((err, regions) => {
-  //   if(err) {
-  //     console.log(err);
-  //     res.sendStatus(500).send(err.message);
-  //   } else {
-  //     console.log(regions);
-  //     res.send({
-  //       regions
-  //     });
-  //   }
-  // });
 });
 
 router.route('/regions/new').post(function(req, res) {
@@ -227,9 +219,9 @@ router.route('/peoples/new').post(function(req, res) {
 router.get('/peoples/:people_id', async (req, res, next) => {
   try {
     let id = mongoose.Types.ObjectId(req.params.people_id);
-    const reg = await people.findById(id);
+    const person = await people.findById(id);
     res.send({
-      people: reg
+      people: person
     });
   } catch (error) {
     res.sendStatus(500).send(error.message);
@@ -311,9 +303,9 @@ router.route('/basins/new').post(function(req, res) {
 router.get('/basins/:basin_id', async (req, res, next) => {
   try {
     let id = mongoose.Types.ObjectId(req.params.basin_id);
-    const reg = await basin.findById(id);
+    const b = await basin.findById(id);
     res.send({
-      basin: reg
+      basin: b
     });
   } catch (error) {
     res.sendStatus(500).send(error.message);
@@ -363,7 +355,7 @@ router.get('/fps', async (req, res, next) => {
     }
 
     const lmt = parseInt(size);
-    const skip = (page - 1) * size;
+    const skp = (page - 1) * size;
 
     const fps = await fp.find({}).populate({
       path: 'region',
@@ -371,7 +363,7 @@ router.get('/fps', async (req, res, next) => {
     }).populate({
       path: 'chief',
       select: 'name'
-    }).limit(lmt).skip(skip);
+    }).limit(lmt).skip(skp);
     const total = await fp.find({}).count();
     res.send({
       page, size, fps, total
@@ -382,6 +374,91 @@ router.get('/fps', async (req, res, next) => {
   }
 });
 
+router.get('/fps/:fp_id', async (req, res, next) => {
+  try {
+    let id = mongoose.Types.ObjectId(req.params.fp_id);
+    const f = await fp.findById(id);
+    res.send({
+      fp: f
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.post('/fps/new', function(req, res) {
+  let doc = {
+    name: req.body.name,
+    type: req.body.type,
+    region: mongoose.Types.ObjectId(req.body.region),
+    userId: mongoose.Types.ObjectId(req.body.userId),
+  };
+  if (req.body.chief && req.body.chief !== '') {
+    doc = { ...doc, chief: mongoose.Types.ObjectId(req.body.chief) };
+  }
+  fp.create(doc, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      console.log(`Inserted a new FPS document with id ${result._id}`);
+      res.send(result);
+    }
+  });
+});
+
+router.patch('/fps/edit/:fp_id', async (req, res, next) => {
+  console.log(req);
+  try {
+    const update = {
+      name: req.body.name,
+      type: req.body.type,
+      region: mongoose.Types.ObjectId(req.body.region),
+    };
+    if (req.body.chief && req.body.chief !== '') {
+      update = { ...update, chief: mongoose.Types.ObjectId(req.body.chief) };
+    }
+    const filter = {
+      _id: mongoose.Types.ObjectId(req.params.fp_id)
+    };
+    console.log(filter);
+    console.log(update);
+    const result = await fp.findOneAndUpdate(filter, update, {
+      new: true
+    });
+    res.send({
+      result: result
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.delete('/fps/delete/:fp_id', (req, res, next) => {
+  const filter = {
+    _id: req.params.fp_id
+  };
+
+  fp.findOneAndDelete(filter, function(err, result) {
+    if (err) {
+      req.sendStatus(500).send(err.message);
+    } else {
+      console.log(`Deleted the document with ID: ${filter._id}`);
+      res.send(result);
+    }
+  });
+});
+
+router.get('/pr', async (req, res, next) => {
+  try {
+    const regs = await region.find({}, { title: 1 });
+    const peops = await people.find({}, { name: 1, designation: 1, discipline: 1 });
+    res.send({
+      regs, peops
+    });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
 
 router.route('/api/auth/signin').post(authController.signin);
 router.route('/api/auth/signup').post(
