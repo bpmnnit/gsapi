@@ -11,6 +11,8 @@ db.region = require('./region.model');
 db.people = require('./people.model');
 db.basin = require('./basin.model');
 db.fp = require('./fp.model');
+db.survey = require('./survey.model');
+db.dpr = require('./dpr.model');
 
 db.ROLES = ['user', 'admin', 'moderator'];
 

@@ -24,3 +24,9 @@ GET http://localhost:8080/fps
 
 ###
 GET http://localhost:8080/fpspeoples
+
+###
+GET http://localhost:8080/surveys
+
+###
+GET http://localhost:8080/dprs

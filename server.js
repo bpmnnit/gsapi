@@ -83,6 +83,8 @@ const region = db.region;
 const people = db.people;
 const basin = db.basin;
 const fp = db.fp;
+const survey = db.survey;
+const dpr = db.dpr;
 
 router.delete('/regions/delete/:region_id', (req, res, next) => {
   const filter = {
@@ -407,21 +409,18 @@ router.post('/fps/new', function(req, res) {
 });
 
 router.patch('/fps/edit/:fp_id', async (req, res, next) => {
-  console.log(req);
   try {
-    const update = {
+    let update = {
       name: req.body.name,
       type: req.body.type,
-      region: mongoose.Types.ObjectId(req.body.region),
+      region: mongoose.Types.ObjectId(req.body.region._id),
     };
     if (req.body.chief && req.body.chief !== '') {
-      update = { ...update, chief: mongoose.Types.ObjectId(req.body.chief) };
+      update = { ...update, chief: mongoose.Types.ObjectId(req.body.chief._id) };
     }
-    const filter = {
+    let filter = {
       _id: mongoose.Types.ObjectId(req.params.fp_id)
     };
-    console.log(filter);
-    console.log(update);
     const result = await fp.findOneAndUpdate(filter, update, {
       new: true
     });
@@ -455,6 +454,55 @@ router.get('/pr', async (req, res, next) => {
     res.send({
       regs, peops
     });
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.get('/surveys', async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    if(!page) {
+      page = 1;
+    }
+    if(!size) {
+      size = 30;
+    }
+
+    const lmt = parseInt(size);
+    const skp = (page - 1) * size;
+
+    const surveys = await survey.find({}).limit(lmt).skip(skp);
+    const total = await survey.find({}).count();
+    res.send({
+      page, size, surveys, total
+    });
+
+  } catch (error) {
+    res.sendStatus(500).send(error.message);
+  }
+});
+
+router.get('/dprs', async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    if(!page) {
+      page = 1;
+    }
+    if(!size) {
+      size = 30;
+    }
+
+    const lmt = parseInt(size);
+    const skp = (page - 1) * size;
+
+    const dprs = await dpr.find({}).sort({date: -1}).limit(lmt).skip(skp);
+    // const dprs = await dpr.find({}).sort({date: -1});
+    const total = await dpr.find({}).count();
+    res.send({
+      page, size, dprs, total
+    });
+
   } catch (error) {
     res.sendStatus(500).send(error.message);
   }
